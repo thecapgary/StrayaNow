@@ -1,0 +1,13 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {"type":"Feature","properties":{"name":"North West Shelf LNG","type":"lng","operator":"Woodside","capacity_mtpa":16.9},"geometry":{"type":"Point","coordinates":[116.7194,-20.6619]}},
+    {"type":"Feature","properties":{"name":"Gorgon LNG","type":"lng","operator":"Chevron","capacity_mtpa":15.6},"geometry":{"type":"Point","coordinates":[114.1556,-20.4461]}},
+    {"type":"Feature","properties":{"name":"Wheatstone LNG","type":"lng","operator":"Chevron","capacity_mtpa":8.9},"geometry":{"type":"Point","coordinates":[114.9878,-21.6519]}},
+    {"type":"Feature","properties":{"name":"Darwin LNG","type":"lng","operator":"Santos","capacity_mtpa":3.7},"geometry":{"type":"Point","coordinates":[130.7831,-12.6397]}},
+    {"type":"Feature","properties":{"name":"QCLNG","type":"lng","operator":"Shell/QGC","capacity_mtpa":8.5},"geometry":{"type":"Point","coordinates":[151.0619,-23.9161]}},
+    {"type":"Feature","properties":{"name":"APLNG","type":"lng","operator":"ConocoPhillips/Origin","capacity_mtpa":9.0},"geometry":{"type":"Point","coordinates":[151.0569,-24.0003]}},
+    {"type":"Feature","properties":{"name":"GLNG","type":"lng","operator":"Santos","capacity_mtpa":7.8},"geometry":{"type":"Point","coordinates":[151.0694,-23.9653]}},
+    {"type":"Feature","properties":{"name":"Ichthys LNG","type":"lng","operator":"Inpex","capacity_mtpa":8.9},"geometry":{"type":"Point","coordinates":[130.3458,-11.7064]}}
+  ]
+}

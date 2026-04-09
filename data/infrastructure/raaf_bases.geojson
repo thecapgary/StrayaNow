@@ -1,0 +1,15 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {"type":"Feature","properties":{"name":"RAAF Base Williamtown","type":"raaf","note":"Home of No. 81 Wing — F/A-18 Hornets"},"geometry":{"type":"Point","coordinates":[151.8367,-32.7953]}},
+    {"type":"Feature","properties":{"name":"RAAF Base Tindal","type":"raaf","note":"Northern Australia air defence hub — F-35A capable"},"geometry":{"type":"Point","coordinates":[132.3783,-14.5211]}},
+    {"type":"Feature","properties":{"name":"RAAF Base Darwin","type":"raaf","note":"Joint USAF/RAAF rotations"},"geometry":{"type":"Point","coordinates":[130.8761,-12.4244]}},
+    {"type":"Feature","properties":{"name":"RAAF Base Edinburgh","type":"raaf","note":"Maritime patrol — P-8A Poseidon"},"geometry":{"type":"Point","coordinates":[138.6217,-34.7025]}},
+    {"type":"Feature","properties":{"name":"RAAF Base Pearce","type":"raaf","note":"Western Australia — OTU"},"geometry":{"type":"Point","coordinates":[115.9774,-31.6678]}},
+    {"type":"Feature","properties":{"name":"RAAF Base Amberley","type":"raaf","note":"Strike — F/A-18F Super Hornets, EA-18G Growlers"},"geometry":{"type":"Point","coordinates":[152.7119,-27.6378]}},
+    {"type":"Feature","properties":{"name":"RAAF Base Townsville","type":"raaf","note":"North Queensland — 75 Sqn"},"geometry":{"type":"Point","coordinates":[146.7644,-19.2527]}},
+    {"type":"Feature","properties":{"name":"RAAF Base Richmond","type":"raaf","note":"C-17 and C-130J airlift"},"geometry":{"type":"Point","coordinates":[150.7808,-33.6003]}},
+    {"type":"Feature","properties":{"name":"Pine Gap","type":"joint_facility","note":"Joint AUS-USA signals intelligence — SIGINT, satellite control"},"geometry":{"type":"Point","coordinates":[133.7377,-23.7996]}},
+    {"type":"Feature","properties":{"name":"Harold E. Holt Naval Communication Station","type":"naval","note":"Joint AUS-USA — submarine VLF comms"},"geometry":{"type":"Point","coordinates":[114.1656,-21.8153]}}
+  ]
+}

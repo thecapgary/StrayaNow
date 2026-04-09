@@ -1,0 +1,15 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {"type":"Feature","properties":{"name":"Port of Darwin","type":"port","note":"Leased to Landbridge Group (China) 2015-2115"},"geometry":{"type":"Point","coordinates":[130.8456,-12.4634]}},
+    {"type":"Feature","properties":{"name":"Port of Newcastle","type":"port","note":"World's largest coal export port"},"geometry":{"type":"Point","coordinates":[151.7789,-32.9167]}},
+    {"type":"Feature","properties":{"name":"Port Botany","type":"port","note":"Sydney container terminal"},"geometry":{"type":"Point","coordinates":[151.2206,-33.9711]}},
+    {"type":"Feature","properties":{"name":"Port of Melbourne","type":"port","note":"Australia's busiest container port"},"geometry":{"type":"Point","coordinates":[144.9219,-37.8276]}},
+    {"type":"Feature","properties":{"name":"Port of Brisbane","type":"port"},"geometry":{"type":"Point","coordinates":[153.1701,-27.3927]}},
+    {"type":"Feature","properties":{"name":"Port of Fremantle","type":"port","note":"WA main container port"},"geometry":{"type":"Point","coordinates":[115.7453,-32.0569]}},
+    {"type":"Feature","properties":{"name":"Port Hedland","type":"port","note":"World's largest bulk export port — iron ore"},"geometry":{"type":"Point","coordinates":[118.5931,-20.3114]}},
+    {"type":"Feature","properties":{"name":"Port of Gladstone","type":"port","note":"LNG export hub"},"geometry":{"type":"Point","coordinates":[151.0414,-23.8356]}},
+    {"type":"Feature","properties":{"name":"Dampier Port","type":"port","note":"Pilbara iron ore and LNG"},"geometry":{"type":"Point","coordinates":[116.7239,-20.6572]}},
+    {"type":"Feature","properties":{"name":"Port Kembla","type":"port","note":"Steel and coal"},"geometry":{"type":"Point","coordinates":[150.9058,-34.4753]}}
+  ]
+}

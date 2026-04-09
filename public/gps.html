@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>StrayaNow GPS Beacon</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 100%; height: 100%; background: #05070d;
+      font-family: 'Courier New', monospace; color: #ccc;
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; padding: 24px; overflow: hidden;
+    }
+
+    h1 {
+      font-size: 15px; font-weight: 700; letter-spacing: 0.15em;
+      color: #f9a825; text-transform: uppercase; margin-bottom: 4px;
+    }
+    .sub { font-size: 10px; color: #444; letter-spacing: 0.12em; margin-bottom: 40px; }
+
+    .status-dot {
+      width: 18px; height: 18px; border-radius: 50%;
+      background: #444; margin: 0 auto 16px;
+      transition: background 0.3s;
+    }
+    .status-dot.connecting { background: #ff9800; animation: pulse 1s infinite; }
+    .status-dot.tracking   { background: #4caf50; animation: pulse 2s infinite; }
+    .status-dot.error      { background: #f44336; }
+
+    @keyframes pulse {
+      0%,100% { box-shadow: 0 0 0 0 currentColor; }
+      50%      { box-shadow: 0 0 0 6px transparent; }
+    }
+
+    .status-label {
+      font-size: 12px; color: #888; letter-spacing: 0.1em;
+      text-transform: uppercase; text-align: center; margin-bottom: 32px;
+    }
+
+    .coords-box {
+      background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 6px; padding: 16px 24px; text-align: center;
+      min-width: 220px; margin-bottom: 20px;
+    }
+    .coord-val { font-size: 18px; color: #f9a825; letter-spacing: 0.05em; margin-bottom: 4px; }
+    .coord-lbl { font-size: 9px; color: #444; letter-spacing: 0.15em; }
+
+    .meta-row {
+      font-size: 11px; color: #555; margin-bottom: 8px; text-align: center;
+    }
+    .meta-row span { color: #888; margin: 0 8px; }
+
+    .error-msg {
+      font-size: 11px; color: #f44; text-align: center; max-width: 260px;
+      line-height: 1.6; margin-top: 16px; display: none;
+    }
+
+    #btn-stop {
+      margin-top: 32px; padding: 10px 28px;
+      background: rgba(244,67,54,0.12); border: 1px solid rgba(244,67,54,0.4);
+      color: #f44336; font-family: 'Courier New', monospace; font-size: 11px;
+      letter-spacing: 0.1em; border-radius: 4px; cursor: pointer;
+      display: none;
+    }
+    #btn-stop:hover { background: rgba(244,67,54,0.22); }
+
+    .update-count {
+      font-size: 10px; color: #333; margin-top: 12px; text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>StrayaNow</h1>
+  <div class="sub">GPS BEACON</div>
+
+  <div class="status-dot connecting" id="dot"></div>
+  <div class="status-label" id="status-label">Connecting…</div>
+
+  <div class="coords-box">
+    <div class="coord-val" id="coord-lat">—</div>
+    <div class="coord-lbl">LATITUDE</div>
+    <div style="margin:10px 0; border-top:1px solid rgba(255,255,255,0.05)"></div>
+    <div class="coord-val" id="coord-lon">—</div>
+    <div class="coord-lbl">LONGITUDE</div>
+  </div>
+
+  <div class="meta-row">
+    Accuracy: <span id="meta-acc">—</span>
+    Speed: <span id="meta-spd">—</span>
+    Heading: <span id="meta-hdg">—</span>
+  </div>
+
+  <div class="error-msg" id="error-msg"></div>
+  <div class="update-count" id="update-count"></div>
+
+  <button id="btn-stop">STOP TRACKING</button>
+
+  <script>
+    const dot        = document.getElementById('dot');
+    const statusLbl  = document.getElementById('status-label');
+    const coordLat   = document.getElementById('coord-lat');
+    const coordLon   = document.getElementById('coord-lon');
+    const metaAcc    = document.getElementById('meta-acc');
+    const metaSpd    = document.getElementById('meta-spd');
+    const metaHdg    = document.getElementById('meta-hdg');
+    const errorMsg   = document.getElementById('error-msg');
+    const updateCnt  = document.getElementById('update-count');
+    const btnStop    = document.getElementById('btn-stop');
+
+    let ws       = null;
+    let watcher  = null;
+    let updates  = 0;
+    let stopped  = false;
+    let wakeLock = null;
+
+    // ── Wake Lock ─────────────────────────────────────────────────────────────
+    async function requestWakeLock() {
+      try {
+        if ('wakeLock' in navigator) {
+          wakeLock = await navigator.wakeLock.request('screen');
+        }
+      } catch {}
+    }
+    requestWakeLock();
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') requestWakeLock();
+    });
+
+    // ── WebSocket ─────────────────────────────────────────────────────────────
+    function connectWS() {
+      if (stopped) return;
+      const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+      ws = new WebSocket(`${proto}//${location.host}/ws/device`);
+
+      ws.onopen = () => {
+        dot.className = 'status-dot connecting';
+        statusLbl.textContent = 'WS connected — waiting for GPS…';
+        startGPS();
+      };
+
+      ws.onclose = () => {
+        if (stopped) return;
+        dot.className = 'status-dot error';
+        statusLbl.textContent = 'Reconnecting…';
+        setTimeout(connectWS, 3000);
+      };
+
+      ws.onerror = () => {
+        dot.className = 'status-dot error';
+        statusLbl.textContent = 'Connection error — retrying…';
+      };
+    }
+
+    function send(payload) {
+      if (ws?.readyState === WebSocket.OPEN) ws.send(JSON.stringify(payload));
+    }
+
+    // ── Geolocation ───────────────────────────────────────────────────────────
+    function startGPS() {
+      if (!navigator.geolocation) {
+        showError('Geolocation not supported on this device/browser.');
+        return;
+      }
+      if (watcher !== null) return; // already watching
+
+      watcher = navigator.geolocation.watchPosition(
+        onPosition, onGpsError,
+        { enableHighAccuracy: true, maximumAge: 3000, timeout: 20000 }
+      );
+    }
+
+    function onPosition(pos) {
+      const { latitude: lat, longitude: lon, accuracy: acc,
+              heading, speed } = pos.coords;
+
+      coordLat.textContent = lat.toFixed(6);
+      coordLon.textContent = lon.toFixed(6);
+      metaAcc.textContent  = acc != null ? `${Math.round(acc)} m` : '—';
+      metaSpd.textContent  = speed != null && speed > 0
+        ? `${(speed * 3.6).toFixed(1)} km/h` : '—';
+      metaHdg.textContent  = heading != null ? `${Math.round(heading)}°` : '—';
+
+      dot.className = 'status-dot tracking';
+      statusLbl.textContent = 'Tracking — broadcasting to StrayaNow';
+      btnStop.style.display = 'inline-block';
+      errorMsg.style.display = 'none';
+
+      updates++;
+      updateCnt.textContent = `${updates} update${updates === 1 ? '' : 's'} sent`;
+
+      send({
+        type: 'gps',
+        lat, lon, acc,
+        heading: heading ?? null,
+        speed:   speed   ?? null,
+        ts: Date.now(),
+      });
+    }
+
+    function onGpsError(err) {
+      const msgs = {
+        1: 'Location permission denied. Please allow location access in browser settings.',
+        2: 'Position unavailable — make sure GPS is enabled.',
+        3: 'GPS timed out — retrying…',
+      };
+      showError(msgs[err.code] || err.message);
+      dot.className = 'status-dot error';
+      statusLbl.textContent = 'GPS error';
+    }
+
+    function showError(msg) {
+      errorMsg.textContent = msg;
+      errorMsg.style.display = 'block';
+    }
+
+    // ── Stop ──────────────────────────────────────────────────────────────────
+    btnStop.addEventListener('click', () => {
+      stopped = true;
+      if (watcher !== null) { navigator.geolocation.clearWatch(watcher); watcher = null; }
+      if (ws) { send({ type: 'gps_stop' }); ws.close(); }
+      dot.className = 'status-dot error';
+      statusLbl.textContent = 'Stopped';
+      btnStop.style.display = 'none';
+    });
+
+    // ── Start ─────────────────────────────────────────────────────────────────
+    connectWS();
+  </script>
+</body>
+</html>
